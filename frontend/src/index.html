@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>discuss</title>
+    <link rel="stylesheet" href="./output.css">
+    <link rel="stylesheet" href="./index.css">
+    <script type="module" src="./index.js" defer></script>
+</head>
+
+<body class="h-screen w-screen">
+    <h1 class="font-bold text-2xl h-[6.5%] bg-orange-300 flex items-center justify-center">Discussion portal</h1>
+    <div class="flex h-[93.5%]">
+        <!-- left div -->
+        <div class="w-1/2 h-full border-gray-300 border-r border-solid flex flex-col">
+            <div class="flex justify-evenly items-center p-2 mt-2">
+                <input type="button" value="New Question" id="newQuesBtn" class="h-full">
+                <input type="text" name="searchQues" id="searchQues" placeholder="Search Question" class="border border-gray-300 border-solid rounded p-1 ">
+            </div>
+            <div id="ques" class="bg-slate-100 grow m-2">
+                <ul id="list">
+                </ul>
+            </div>
+        </div>
+        <!-- right div -->
+        <div class="w-1/2 p-6">
+            <!-- any one div will appear -->
+            <div id="quesForm" class="flex justify-center flex-col">
+                <h3 class="text-gray-500 mb-1">Enter a subject and question</h3>
+                <input type="text" name="" id="subText" placeholder="Subject" class="border border-gray-300 border-solid rounded">
+                <textarea name="" id="quesText" rows="3" placeholder="Question" class=" my-2 border border-gray-300 border-solid rounded"></textarea>
+                <input type="button" value="Submit" id="subQuesBtn" class="mx-10">
+                <input type="button" value="Reset" id="resetQuesBtn" class="hidden mx-10 bg-red-400">
+            </div>
+
+            <div id="quesRes" class="hidden ">
+                <h2 class="text-lg text-gray-500">Question</h2>
+                <div id="showQues" class="bg-slate-100 p-1 px-2 rounded">
+                    <h3 class="text-xl">Suject here</h3>
+                    <p class="text-sm">question here</p>
+                </div>
+                <div class="flex flex-row-reverse my-2">
+                    <input id="resolveBtn" type="button" value="Resolve">
+                </div>
+                <h2 class="text-lg text-gray-500">Response</h2>
+                <div id="responses" class="bg-slate-100 p-1"></div>
+                <h2 class="text-xl text-gray-700 my-3">Add Response</h2>
+                <div class="m-2 flex flex-col ">
+                    <input type="text" name="" id="responderName" placeholder="Enter name" class="border border-gray-300 border-solid rounded">
+                    <textarea name="" id="respondText" rows="3" placeholder="Your Response here" class="mt-1 border border-gray-300 border-solid rounded"></textarea>
+                </div>
+                <div class="flex flex-row-reverse">
+                    <input id="submitResBtn" type="button" value="Submit" class="">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

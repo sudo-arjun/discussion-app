@@ -1,0 +1,15 @@
+input[type=button]{
+    background-color: hsl(41, 61%, 52%);
+    color:black;
+    padding: 0.25em;
+    border-radius:0.5em;
+    text-align: center;
+    /* margin:0.35em; */
+}   
+input[type=button]:hover{
+    background-color: hsl(41, 61%, 60%);
+    color:black
+}
+.timeBefore{
+    font-family: monospace;
+}
