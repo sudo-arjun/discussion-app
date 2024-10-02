@@ -18,16 +18,15 @@ import {
 } from './getElements.js';
 
 let quesObj = {}, id = 1, selectedId, selectedQuesElement;
-let firstFavElement = false;
 
 class TimePeriod {
     constructor(ms) {
-        this.sec = Math.round(ms / 1000);
-        this.min = Math.round(this.sec / 60);
-        this.hr = Math.round(this.min / 60);
-        this.day = Math.round(this.hr / 24);
-        this.month = Math.round(this.day / 30);
-        this.year = Math.round(this.day / 365);
+        this.sec = Math.floor(ms / 1000);
+        this.min = Math.floor(this.sec / 60);
+        this.hr = Math.floor(this.min / 60);
+        this.day = Math.floor(this.hr / 24);
+        this.month = Math.floor(this.day / 30);
+        this.year = Math.floor(this.day / 365);
     }
     getString() {
         for (let unit of ['year', 'month', 'day', 'hr', 'min', 'sec']) {
@@ -40,7 +39,7 @@ class TimePeriod {
 }
 class Ques {
     constructor(subject, ques, resArr = [], isFavourite = false) {
-        this.subject = subject,
+            this.subject = subject,
             this.ques = ques,
             this.res = resArr,
             this.isFavourite = isFavourite,
@@ -67,7 +66,7 @@ class Response {
         })
         data = await response.json();
         quesObj = data;
-        saveQuesData();
+        saveQuesData(true);
     }
     renderQues();
 })();
@@ -83,11 +82,12 @@ submitResBtn.addEventListener('click', createNewResp);
 subText.addEventListener('change', () => toggle([submitQuesBtn], [resetQuesBtn]));
 quesText.addEventListener('change', () => toggle([submitQuesBtn], [resetQuesBtn]));
 resolveBtn.addEventListener('click', resolveQuestion)
-setInterval(updateTime, 5000);
+setInterval(updateTime, 1000);
 
 
 //render Questions at left pane
 function renderQues(idArr = Object.keys(quesObj), quesOb = quesObj) {
+    let firstFavElement = false;
     for (let key of idArr) {
         let li = document.createElement('li');
         li.innerHTML = `<div class='flex'>
@@ -168,17 +168,20 @@ function renderRes(startingIndex = 0) {
     }
 }
 
-async function saveQuesData() {
+async function saveQuesData(initial = false) {
     localStorage.setItem('quesObj', JSON.stringify(quesObj));
-    let response = await fetch('http://localhost:3005/data', {
-        method: 'POST',
-        body: JSON.stringify(quesObj)
-    })
-    let saved = await response.text();
-    if (saved != 'saved')
-        alert("Couldn't save your data, check your internet connection");
-    else
-        console.log("data saved");
+    if (!initial) {
+        let response = await fetch('http://localhost:3005/data', {
+            method: 'POST',
+            body: JSON.stringify(quesObj)
+        })
+        let saved = await response.text();
+        if (saved != 'saved')
+            alert("Couldn't save your data, check your internet connection");
+        else
+            console.log("data saved");
+    }
+
 }
 
 function showBlankQuesForm() {
@@ -202,7 +205,7 @@ async function createNewQues() {
     //update the list
     renderQues([id]);
 
-    toggle([resetQuesBtn],[submitQuesBtn]);
+    toggle([resetQuesBtn], [submitQuesBtn]);
 }
 
 function toggle(turnOnList, turnOffList) {
@@ -223,6 +226,9 @@ function createNewResp() {
     //only one response should be added
     renderRes(quesObj[selectedId].res.length - 1);
     saveQuesData();
+    responderName.value = '';
+    respondText.value = '';
+
 }
 
 function resetForm() {
@@ -247,31 +253,26 @@ function quesListHandler(e) {
 }
 
 function voteHandler(e) {
-    // console.log(e.target);
-    let resId = e.target.parentElement.id;
-    // console.log(resId);
+    let resId = e.currentTarget.parentElement.id;
+ 
     let [, resIdd] = resId.split('-'), index1, index2;
-    // console.log('--'+Number(resIdd)+'--');
-    if (e.target.firstChild.textContent == '👍') {
+    if (e.currentTarget.firstChild.textContent == '👍') {
 
         quesObj[selectedId].res[resIdd].upvotes++;
         [index1, index2] = calculateChangeInPos('upvote', resIdd);
-        // console.log("clicked up", index1, index2);
 
     }
     else {
         quesObj[selectedId].res[resIdd].downvotes++;
-        // console.log(quesObj[selectedId].res)
-        let [index1, index2] = calculateChangeInPos('downvote', resIdd);
-        // console.log("clicked down", index1, index2);
+        [index1, index2] = calculateChangeInPos('downvote', resIdd);
     }
     if (index1 != index2) {
         swapInArr(index1, index2);
-        // swapInDOM(index1,index2);
         renderRes();
 
     }
     updateVotes(resIdd);
+    saveQuesData();
 }
 
 function calculateChangeInPos(typeOfVote, resId) {
@@ -306,30 +307,7 @@ function swapInArr(index1, index2) {
     responseArr[index1] = responseArr[index2];
     responseArr[index2] = temp;
 }
-function swapInDOM(id1, id2) {
-    let responseDiv1 = responses.querySelector(`#res-${id1}`);
-    let responseDiv2 = responses.querySelector(`#res-${id2}`);
-    console.log(responseDiv1);
-    console.log(responseDiv2);
-    let nextSib1 = responseDiv1.nextSibling !== responseDiv2 ? responseDiv1.nextSibling : responseDiv1;
-    let nextSib2 = responseDiv2.nextSibling !== responseDiv1 ? responseDiv1.nextSibling : responseDiv2;
-    responses.insertBefore(responseDiv1, nextSib2);
-    responses.insertBefore(responseDiv2, nextSib1);
 
-    // let div1Clone = responseDiv1.cloneNode(true);
-    // let div2Clone = responseDiv2.cloneNode(true);
-
-    // responseDiv1.parentElement.replaceChild(div2Clone,responseDiv1);
-    // responseDiv1.parentElement.replaceChild(div2Clone,responseDiv1);
-    // responses.replaceChild(div2Clone,responseDiv1);
-    // responses.replaceChild(div1Clone,responseDiv2);
-
-    // console.log(div1Clone.children[2].addEventListener('click',upvoteBtnHandler))
-    // console.log(div1Clone.children[3].addEventListener('click',downvoteBtnHandler))
-
-    // console.log(div2Clone.children[2].addEventListener('click',upvoteBtnHandler))
-    // console.log(div2Clone.children[3].addEventListener('click',downvoteBtnHandler))
-}
 function updateVotes(index) {
     // console.log(index);
     let [upvoteBtn, downvoteBtn] = responses.querySelectorAll(`#res-${index} button`)
@@ -361,6 +339,7 @@ function favHandler(e) {
     // console.log('fav btn', btn, id);
 }
 function changeFavCSS(id) {
+    console.log('id is', id);
     let btn = document.getElementById(`favBtn-${id}`);
     if (quesObj[id].isFavourite) {
         btn.classList.add('text-orange-300')
@@ -372,23 +351,24 @@ function changeFavCSS(id) {
 
 searchQues.addEventListener('input', (e) => {
     let value = e.target.value;
+
     list.innerHTML = "";
     //take another copy of quesObj
     let quesObjCopy = JSON.parse(JSON.stringify(quesObj));
     let renderOrNot;
     //search in quesObj
-    if (value == '' || value == null)
+    if (value == '' || value == null) {
         renderQues();
+        console.log("input empty:", value);
+        return;
+    }
 
     for (let key in quesObjCopy) {
         renderOrNot = false;
-        // console.log(quesObjCopy[key]['subject']);
-        let tempObj = { ques: 'ques', subject: 'subject' };
-        for (let keyInQues in tempObj) {
-            //         //search in ques 
+        for (let keyInQues of ['ques', 'subject']) {
+            //search in ques 
             let indexes = getAllIndex(quesObjCopy[key][keyInQues], value);
-            console.log("indexes: ", indexes);
-            //         //add span or mark before and after 
+            //add span or mark before and after 
             if (indexes.length > 0)
                 quesObjCopy[key][keyInQues] = insertAroundInStr(quesObjCopy[key][keyInQues], indexes, value);
 
@@ -397,6 +377,7 @@ searchQues.addEventListener('input', (e) => {
         }
         if (renderOrNot)
             renderQues([key], quesObjCopy);
+
     }
 
 })
@@ -425,7 +406,7 @@ function insertAroundInStr(mainStr, indexArr, value, first = '<mark>', second = 
 function resolveQuestion() {
     delete quesObj[selectedId];
     selectedQuesElement.remove();
-    toggle([quesForm],[quesRes])
+    toggle([quesForm], [quesRes])
     saveQuesData();
 }
 
@@ -440,46 +421,3 @@ function updateTime() {
         element.append(document.createTextNode(DiffTimeObj.getString()));
     })
 }
-
-
-
-/*
-scrap code
-function upvoteBtnHandler(e) {
-    let resId = e.target.parentElement.id;
-    // console.log(resId);
-    let [, resIdd] = resId.split('-');
-    // console.log('--'+Number(resIdd)+'--');
-    quesObj[selectedId].res[resIdd].upvotes++;
-    let [index1, index2] = calculateChangeInPos('upvote', resIdd);
-    console.log("clicked up", index1, index2);
-    if (index1 != index2) {
-        swapInArr(index1, index2);
-        // swapInDOM(index1,index2);
-        renderRes();
-
-    }
-    updateVotes(resIdd);
-    console.log(quesObj[selectedId].res)
-
-    // console.log(quesObj[selectedId].res[resId].netvotes)
-}
-function downvoteBtnHandler(e) {
-    let resId = e.target.parentElement.id;
-    // console.log(resId);
-    let [, resIdd] = resId.split('-');
-    // console.log('--',resIdd);
-    quesObj[selectedId].res[resIdd].downvotes++;
-    console.log(quesObj[selectedId].res)
-    let [index1, index2] = calculateChangeInPos('downvote', resIdd);
-    console.log("clicked down", index1, index2);
-    if (index1 != index2) {
-        swapInArr(index1, index2);
-        // [index1,index2] = [index2,index1];
-        // swapInDOM(index1,index2);
-        renderRes();
-    }
-    updateVotes(resIdd);
-
-}
-*/

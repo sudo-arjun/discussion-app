@@ -1,5 +1,3 @@
-// const indexHtmlFile = require('../frontend/src/index.html');
-// const file = require('file').promises;
 import { promises as fs } from 'fs';
 const htmlFilePath =  '../frontend/src/index.html'
 const dataPath = './data.json';
